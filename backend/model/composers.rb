@@ -25,33 +25,35 @@ class Composers
     out = {}
     puts "SSSSSSSSSS #{ds.sql}"
     ds.each do |obj|
+      res_notes = ASUtils.json_parse(obj[:res_notes] || '{}')
+      ao_notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
       if out.empty?
         out = {
           :identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
           :resource_title => obj[:res_title],
-          :bioghist => [extract_note(obj[:res_notes], 'bioghist')],
-          :resource_scopecontent => [extract_note(obj[:res_notes], 'scopecontent')],
+          :bioghist => [extract_note(res_notes, 'bioghist')],
+          :resource_scopecontent => [extract_note(res_notes, 'scopecontent')],
 
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
           :date => [[obj[:date_begin], obj[:date_end]]],
-          :phystech => [extract_note(obj[:ao_notes], 'phystech')],
+          :phystech => [extract_note(ao_notes, 'phystech')],
           :extent=> [obj[:extent_phys]],
-          :item_scopecontent => [extract_note(obj[:ao_notes], 'scopecontent')],
-          :accessrestrict => [extract_note(obj[:ao_notes], 'accessrestrict')],
-          :userestrict => [extract_note(obj[:ao_notes], 'userestrict')],
+          :item_scopecontent => [extract_note(ao_notes, 'scopecontent')],
+          :accessrestrict => [extract_note(ao_notes, 'accessrestrict')],
+          :userestrict => [extract_note(ao_notes, 'userestrict')],
           :rights_statements => [obj[:rights_type]],
           :agents => ['really? ... oh god']
         }
       else
-        out[:bioghist] << extract_note(obj[:res_notes], 'bioghist')
-        out[:resource_scopecontent] << extract_note(obj[:res_notes], 'scopecontent')
+        out[:bioghist] << extract_note(res_notes, 'bioghist')
+        out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
         out[:date] << [obj[:date_begin], obj[:date_end]]
-        out[:phystech] << extract_note(obj[:ao_notes], 'phystech')
+        out[:phystech] << extract_note(ao_notes, 'phystech')
         out[:extent] << obj[:extent_phys]
-        out[:item_scopecontent] << extract_note(obj[:ao_notes], 'scopecontent')
-        out[:accessrestrict] << extract_note(obj[:ao_notes], 'accessrestrict')
-        out[:userestrict] << extract_note(obj[:ao_notes], 'userestrict')
+        out[:item_scopecontent] << extract_note(ao_notes, 'scopecontent')
+        out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
+        out[:userestrict] << extract_note(ao_notes, 'userestrict')
         out[:rights_statements] << obj[:rights_type]
         out[:agents] << 'really? ... oh god'
       end
@@ -78,16 +80,17 @@ class Composers
 
     out = {}
     ds.each do |obj|
+      notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
       if out[obj[:ao_id]]
         out[obj[:ao_id]][:date] << [obj[:date_begin], obj[:date_end]]
-        out[obj[:ao_id]][:phystech] << extract_note(obj[:ao_notes], 'phystech')
+        out[obj[:ao_id]][:phystech] << extract_note(notes, 'phystech')
         out[obj[:ao_id]][:extent] << obj[:extent_phys]
       else
         out[obj[:ao_id]] = {
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
           :date => [[obj[:date_begin], obj[:date_end]]],
-          :phystech => [extract_note(obj[:ao_notes], 'phystech')],
+          :phystech => [extract_note(notes, 'phystech')],
           :extent=> [obj[:extent_phys]],
           :detail_url => detail_url(obj[:component_id]),
         }
@@ -131,9 +134,8 @@ class Composers
 
 
   def self.extract_note(notes, type)
-    parsed = ASUtils.json_parse(notes || '{}')
-    return '' unless parsed['type'] == type
-    parsed['subnotes'].select { |sn| sn['publish'] }.collect { |sn| sn['content'] }.join(' ')
+    return '' unless notes['type'] == type
+    notes['subnotes'].select { |sn| sn['publish'] }.collect { |sn| sn['content'] }.join(' ')
   end
 
 
