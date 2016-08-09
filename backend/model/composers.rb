@@ -22,50 +22,113 @@ class Composers
 
   def self.detailed(component_id)
     ds = dataset(true).filter(:component_id => component_id)
+    out = {}
     puts "SSSSSSSSSS #{ds.sql}"
-    ds.collect do |obj|
-      {
-        :identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('--'),
-        :resource_title => obj[:res_title],
-        :bioghist => extract_note(obj[:res_notes], 'bioghist'),
-        :scopecontent => extract_note(obj[:res_notes], 'scopecontent'),
+    ds.each do |obj|
+      if out.empty?
+        out = {
+          :identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
+          :resource_title => obj[:res_title],
+          :bioghist => [extract_note(obj[:res_notes], 'bioghist')],
+          :resource_scopecontent => [extract_note(obj[:res_notes], 'scopecontent')],
 
-        :component_id => obj[:component_id],
-        :title => obj[:ao_title],
-        :date => obj[:date],
-        :phystech => extract_note(obj[:ao_notes], 'phystech'),
-        :extent=> obj[:extent_phys],
-        :scopecontent => extract_note(obj[:ao_notes], 'scopecontent'),
-        :accessrestrict => extract_note(obj[:ao_notes], 'accessrestrict'),
-        :userestrict => extract_note(obj[:ao_notes], 'userestrict'),
-        :rights_statements => obj[:rights_type],
-        :agents => 'really? ... oh god'
-      }
+          :component_id => obj[:component_id],
+          :title => obj[:ao_title],
+          :date => [[obj[:date_begin], obj[:date_end]]],
+          :phystech => [extract_note(obj[:ao_notes], 'phystech')],
+          :extent=> [obj[:extent_phys]],
+          :item_scopecontent => [extract_note(obj[:ao_notes], 'scopecontent')],
+          :accessrestrict => [extract_note(obj[:ao_notes], 'accessrestrict')],
+          :userestrict => [extract_note(obj[:ao_notes], 'userestrict')],
+          :rights_statements => [obj[:rights_type]],
+          :agents => ['really? ... oh god']
+        }
+      else
+        out[:bioghist] << extract_note(obj[:res_notes], 'bioghist')
+        out[:resource_scopecontent] << extract_note(obj[:res_notes], 'scopecontent')
+        out[:date] << [obj[:date_begin], obj[:date_end]]
+        out[:phystech] << extract_note(obj[:ao_notes], 'phystech')
+        out[:extent] << obj[:extent_phys]
+        out[:item_scopecontent] << extract_note(obj[:ao_notes], 'scopecontent')
+        out[:accessrestrict] << extract_note(obj[:ao_notes], 'accessrestrict')
+        out[:userestrict] << extract_note(obj[:ao_notes], 'userestrict')
+        out[:rights_statements] << obj[:rights_type]
+        out[:agents] << 'really? ... oh god'
+      end
     end
-  end
 
+    crunch(out[:bioghist])
+    crunch(out[:resource_scopecontent])
+    crunch(out[:phystech])
+    crunch(out[:extent])
+    crunch(out[:item_scopecontent])
+    crunch(out[:accessrestrict])
+    crunch(out[:userestrict])
+    crunch(out[:rights_statements])
+    crunch(out[:agents])
 
-  def self.digital_objects(component_id)
-    dataset.collect {|obj| obj[:id]}
+    out[:date] = find_date_range(out[:date])
+    out
   end
 
 
   def self.summary(resource_id)
-    ds = dataset.filter(:identifier => ASUtils.to_json([resource_id, nil, nil, nil]))
-    ds.collect do |obj|
-      {
-        :component_id => obj[:component_id],
-        :title => obj[:do_title],
-        :date => obj[:date],
-        :phystech => extract_note(obj[:ao_notes], 'phystech'),
-        :extent=> obj[:extent_phys],
-        :detail_url => AppConfig[:backend_url] + BASE_DETAIL_URI + (obj[:component_id] || ''),
-      }
+    # come on ruby what's the nice way to set up that id array?
+    ds = dataset.filter(:identifier => ASUtils.to_json(resource_id.split('.', 4).concat(Array.new(4)).take(4)))
+
+    out = {}
+    ds.each do |obj|
+      if out[obj[:ao_id]]
+        out[obj[:ao_id]][:date] << [obj[:date_begin], obj[:date_end]]
+        out[obj[:ao_id]][:phystech] << extract_note(obj[:ao_notes], 'phystech')
+        out[obj[:ao_id]][:extent] << obj[:extent_phys]
+      else
+        out[obj[:ao_id]] = {
+          :component_id => obj[:component_id],
+          :title => obj[:ao_title],
+          :date => [[obj[:date_begin], obj[:date_end]]],
+          :phystech => [extract_note(obj[:ao_notes], 'phystech')],
+          :extent=> [obj[:extent_phys]],
+          :detail_url => detail_url(obj[:component_id]),
+        }
+      end
+    end
+
+    out.values.map do |v|
+      crunch(v[:phystech])
+      crunch(v[:extent])
+      v[:date] = find_date_range(v[:date])
+      v
     end
   end
 
 
   private
+
+  def self.find_date_range(dates)
+    earliest = '9999'
+    latest = '0000'
+    dates.flatten.compact.each do |date|
+      puts "DDD #{date}"
+      earliest = date if date < earliest
+      latest = date if date > latest
+    end
+    earliest = latest = '?' if earliest == '9999'
+    earliest + ' -- ' + latest
+  end
+
+
+  def self.crunch(a)
+    a.compact!
+    a.uniq!
+    a.delete_if { |v| v.empty? }
+  end
+
+
+  def self.detail_url(id)
+    AppConfig[:backend_url] + BASE_DETAIL_URI + (id || '')
+  end
+
 
   def self.extract_note(notes, type)
     parsed = ASUtils.json_parse(notes || '{}')
@@ -86,14 +149,16 @@ class Composers
         .join(:instance, :id => :instance_id)
         .join(:archival_object, :id => :archival_object_id)
         .join(:resource, :id => :root_record_id)
-        .left_join(:date, :digital_object_id => :digital_object__id)
+        .left_join(:date, :archival_object_id => :archival_object__id)
         .left_join(:note___ao_note, :archival_object_id => :archival_object__id)
         .left_join(:extent, :digital_object_id => :digital_object__id)
         .select(Sequel.as(:digital_object__digital_object_id, :do_identifier),
+                Sequel.as(:archival_object__id, :ao_id),
                 Sequel.as(:archival_object__component_id, :component_id),
                 Sequel.as(:archival_object__title, :ao_title),
                 Sequel.as(:digital_object__title, :do_title),
-                Sequel.as(:date__expression, :date),
+                Sequel.as(:date__begin, :date_begin),
+                Sequel.as(:date__end, :date_end),
                 Sequel.as(:ao_note__notes, :ao_notes),
                 Sequel.as(:extent__physical_details, :extent_phys))
 
