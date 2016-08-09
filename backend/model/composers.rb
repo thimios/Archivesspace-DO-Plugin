@@ -23,7 +23,7 @@ class Composers
   def self.detailed(component_id)
     ds = dataset(true).filter(:component_id => component_id)
     out = {}
-    puts "SSSSSSSSSS #{ds.sql}"
+
     ds.each do |obj|
       res_notes = ASUtils.json_parse(obj[:res_notes] || '{}')
       ao_notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
@@ -31,32 +31,32 @@ class Composers
         out = {
           :identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
           :resource_title => obj[:res_title],
-          :bioghist => [extract_note(res_notes, 'bioghist')],
-          :resource_scopecontent => [extract_note(res_notes, 'scopecontent')],
+          :bioghist => [],
+          :resource_scopecontent => [],
 
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
-          :date => [[obj[:date_begin], obj[:date_end]]],
-          :phystech => [extract_note(ao_notes, 'phystech')],
-          :extent=> [obj[:extent_phys]],
-          :item_scopecontent => [extract_note(ao_notes, 'scopecontent')],
-          :accessrestrict => [extract_note(ao_notes, 'accessrestrict')],
-          :userestrict => [extract_note(ao_notes, 'userestrict')],
-          :rights_statements => [obj[:rights_type]],
-          :agents => ['really? ... oh god']
+          :date => [],
+          :phystech => [],
+          :extent=> [],
+          :item_scopecontent => [],
+          :accessrestrict => [],
+          :userestrict => [],
+          :rights_statements => [],
+          :agents => [],
         }
-      else
-        out[:bioghist] << extract_note(res_notes, 'bioghist')
-        out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
-        out[:date] << [obj[:date_begin], obj[:date_end]]
-        out[:phystech] << extract_note(ao_notes, 'phystech')
-        out[:extent] << obj[:extent_phys]
-        out[:item_scopecontent] << extract_note(ao_notes, 'scopecontent')
-        out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
-        out[:userestrict] << extract_note(ao_notes, 'userestrict')
-        out[:rights_statements] << obj[:rights_type]
-        out[:agents] << 'really? ... oh god'
       end
+
+      out[:bioghist] << extract_note(res_notes, 'bioghist')
+      out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
+      out[:date] << [obj[:date_begin], obj[:date_end]]
+      out[:phystech] << extract_note(ao_notes, 'phystech')
+      out[:extent] << obj[:extent_phys]
+      out[:item_scopecontent] << extract_note(ao_notes, 'scopecontent')
+      out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
+      out[:userestrict] << extract_note(ao_notes, 'userestrict')
+      out[:rights_statements] << obj[:rights_type]
+      out[:agents] << 'really? ... oh god'
     end
 
     crunch(out[:bioghist])
@@ -70,6 +70,7 @@ class Composers
     crunch(out[:agents])
 
     out[:date] = find_date_range(out[:date])
+
     out
   end
 
