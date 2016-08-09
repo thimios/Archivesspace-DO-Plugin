@@ -44,6 +44,7 @@ class Composers
           :userestrict => [],
           :rights_statements => [],
           :agents => [],
+          :file_uris => [],
         }
       end
 
@@ -57,6 +58,7 @@ class Composers
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
       out[:rights_statements] << obj[:rights_type]
       out[:agents] << 'really? ... oh god'
+      out[:file_uris] << obj[:file_uri]
     end
 
     crunch(out[:bioghist])
@@ -68,6 +70,7 @@ class Composers
     crunch(out[:userestrict])
     crunch(out[:rights_statements])
     crunch(out[:agents])
+    crunch(out[:file_uris])
 
     out[:date] = find_date_range(out[:date])
 
@@ -175,10 +178,12 @@ class Composers
           .left_join(:agent_software, :id => :linked_agents_rlshp__agent_software_id)
           .left_join(:agent_family, :id => :linked_agents_rlshp__agent_family_id)
           .left_join(:agent_corporate_entity, :id => :linked_agents_rlshp__agent_corporate_entity_id)
+          .left_join(:file_version, :digital_object_id => :digital_object__id)
           .select_append(Sequel.as(:resource__identifier, :res_identifier),
                          Sequel.as(:resource__title, :res_title),
                          Sequel.as(:res_note__notes, :res_notes),
-                         Sequel.as(:rights_statement_rights_type__value, :rights_type))
+                         Sequel.as(:rights_statement_rights_type__value, :rights_type),
+                         Sequel.as(:file_version__file_uri, :file_uri))
       end
 
       ds
