@@ -21,7 +21,7 @@ class Composers
   #  -  names of linked agents
 
   def self.detailed(component_id)
-    ds = dataset(true).filter(:component_id => component_id)
+    ds = dataset(true).filter(:archival_object__component_id => component_id)
     out = {}
 
     ds.each do |obj|
@@ -61,6 +61,8 @@ class Composers
       out[:file_uris] << obj[:file_uri]
     end
 
+    return out if out.empty?
+    
     crunch(out[:bioghist])
     crunch(out[:resource_scopecontent])
     crunch(out[:phystech])
@@ -116,7 +118,6 @@ class Composers
     earliest = '9999'
     latest = '0000'
     dates.flatten.compact.each do |date|
-      puts "DDD #{date}"
       earliest = date if date < earliest
       latest = date if date > latest
     end
@@ -157,7 +158,7 @@ class Composers
         .join(:resource, :id => :root_record_id)
         .left_join(:date, :archival_object_id => :archival_object__id)
         .left_join(:note___ao_note, :archival_object_id => :archival_object__id)
-        .left_join(:extent, :digital_object_id => :digital_object__id)
+        .left_join(:extent, :archival_object_id => :archival_object__id)
         .select(Sequel.as(:digital_object__digital_object_id, :do_identifier),
                 Sequel.as(:archival_object__id, :ao_id),
                 Sequel.as(:archival_object__component_id, :component_id),
@@ -172,7 +173,6 @@ class Composers
         ds = ds.left_join(:note___res_note, :resource_id => :resource__id)
           .left_join(:rights_statement, :archival_object_id => :archival_object__id)
           .left_join(:enumeration_value___rights_statement_rights_type, :id => :rights_statement__rights_type_id)
-          .filter(:rights_statement__active => 1)
           .left_join(:linked_agents_rlshp, :archival_object_id => :archival_object__id)
           .left_join(:agent_person, :id => :linked_agents_rlshp__agent_person_id)
           .left_join(:agent_software, :id => :linked_agents_rlshp__agent_software_id)
