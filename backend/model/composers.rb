@@ -57,7 +57,13 @@ class Composers
       out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
       out[:rights_statements] << obj[:rights_type]
-      out[:agents] << 'really? ... oh god'
+      if obj[:person_is_display] || obj[:corporate_entity_is_display] || obj[:family_is_display]
+        out[:agents] << {
+          :name => obj[:person] || obj[:corporate_entity] || obj[:family],
+          :role => I18n.t("enumerations.linked_agent_role.#{obj[:agent_role]}", :default => obj[:agent_role]),
+          :relator => I18n.t("enumerations.linked_agent_archival_record_relators.#{obj[:agent_relator]}",:default => obj[:agent_relator]),
+        }
+      end
       out[:file_uris] << obj[:file_uri]
     end
 
@@ -173,17 +179,27 @@ class Composers
         ds = ds.left_join(:note___res_note, :resource_id => :resource__id)
           .left_join(:rights_statement, :archival_object_id => :archival_object__id)
           .left_join(:enumeration_value___rights_statement_rights_type, :id => :rights_statement__rights_type_id)
-          .left_join(:linked_agents_rlshp, :archival_object_id => :archival_object__id)
-          .left_join(:agent_person, :id => :linked_agents_rlshp__agent_person_id)
-          .left_join(:agent_software, :id => :linked_agents_rlshp__agent_software_id)
-          .left_join(:agent_family, :id => :linked_agents_rlshp__agent_family_id)
-          .left_join(:agent_corporate_entity, :id => :linked_agents_rlshp__agent_corporate_entity_id)
           .left_join(:file_version, :digital_object_id => :digital_object__id)
+          .left_join(:linked_agents_rlshp, :linked_agents_rlshp__archival_object_id => :archival_object__id)
+          .left_join(:name_person, :name_person__agent_person_id => :linked_agents_rlshp__agent_person_id)
+          .left_join(:name_corporate_entity, :name_corporate_entity__agent_corporate_entity_id => :linked_agents_rlshp__agent_corporate_entity_id)
+          .left_join(:name_family, :name_family__agent_family_id => :linked_agents_rlshp__agent_family_id)
+          .left_join(Sequel.as(:enumeration_value, :role), :role__id => :linked_agents_rlshp__role_id)
+          .left_join(Sequel.as(:enumeration_value, :relator), :relator__id => :linked_agents_rlshp__relator_id)
           .select_append(Sequel.as(:resource__identifier, :res_identifier),
                          Sequel.as(:resource__title, :res_title),
                          Sequel.as(:res_note__notes, :res_notes),
                          Sequel.as(:rights_statement_rights_type__value, :rights_type),
-                         Sequel.as(:file_version__file_uri, :file_uri))
+                         Sequel.as(:file_version__file_uri, :file_uri),
+                         Sequel.as(:name_person__sort_name, :person),
+                         Sequel.as(:name_corporate_entity__sort_name, :corporate_entity),
+                         Sequel.as(:name_family__sort_name, :family),
+                         Sequel.as(:name_person__is_display_name, :person_is_display),
+                         Sequel.as(:name_corporate_entity__is_display_name, :corporate_entity_is_display),
+                         Sequel.as(:name_family__is_display_name, :family_is_display),
+                         Sequel.as(:relator__value, :agent_relator),
+                         Sequel.as(:role__value, :agent_role))
+
       end
 
       ds
