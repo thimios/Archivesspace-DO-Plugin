@@ -56,8 +56,10 @@ class Composers
       out[:item_scopecontent] << extract_note(ao_notes, 'scopecontent')
       out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
-      out[:rights_statements] << obj[:rights_type]
-      if obj[:person_is_display] || obj[:corporate_entity_is_display] || obj[:family_is_display]
+      if obj[:rights_active] == 1
+        out[:rights_statements] << I18n.t("enumerations.rights_statement_rights_type.#{obj[:rights_type]}", :default => obj[:rights_type])
+      end
+      if obj[:person_is_display] == 1 || obj[:corporate_entity_is_display] == 1 || obj[:family_is_display] == 1
         out[:agents] << {
           :name => obj[:person] || obj[:corporate_entity] || obj[:family],
           :role => I18n.t("enumerations.linked_agent_role.#{obj[:agent_role]}", :default => obj[:agent_role]),
@@ -190,6 +192,7 @@ class Composers
                          Sequel.as(:resource__title, :res_title),
                          Sequel.as(:res_note__notes, :res_notes),
                          Sequel.as(:rights_statement_rights_type__value, :rights_type),
+                         Sequel.as(:rights_statement__active, :rights_active),
                          Sequel.as(:file_version__file_uri, :file_uri),
                          Sequel.as(:name_person__sort_name, :person),
                          Sequel.as(:name_corporate_entity__sort_name, :corporate_entity),
