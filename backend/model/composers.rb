@@ -29,13 +29,15 @@ class Composers
       ao_notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
       if out.empty?
         out = {
-          :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
-          :resource_title => obj[:res_title],
-          :bioghist => [],
-          :resource_scopecontent => [],
-
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
+          :file_uris => [],
+
+          :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
+          :resource_title => obj[:res_title],
+          :resource_scopecontent => [],
+          :resource_bioghist => [],
+
           :date => [],
           :phystech => [],
           :extent=> [],
@@ -44,11 +46,10 @@ class Composers
           :userestrict => [],
           :rights_statements => [],
           :agents => [],
-          :file_uris => [],
         }
       end
 
-      out[:bioghist] << extract_note(res_notes, 'bioghist')
+      out[:resource_bioghist] << extract_note(res_notes, 'bioghist')
       out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
       out[:date] << [obj[:date_begin], obj[:date_end]]
       out[:phystech] << extract_note(ao_notes, 'phystech')
@@ -58,7 +59,8 @@ class Composers
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
       if obj[:rights_active] == 1
         out[:rights_statements] << {
-          :type => I18n.t("enumerations.rights_statement_rights_type.#{obj[:rights_type]}", :default => obj[:rights_type]),
+          :type => I18n.t("enumerations.rights_statement_rights_type.#{obj[:rights_type]}",
+                          :default => obj[:rights_type]),
           :permissions => obj[:rights_permissions],
           :restrictions => obj[:rights_restrictions],
           :restriction_start_date => obj[:rights_restriction_start_date],
@@ -69,7 +71,8 @@ class Composers
         out[:agents] << {
           :name => obj[:person] || obj[:corporate_entity] || obj[:family],
           :role => I18n.t("enumerations.linked_agent_role.#{obj[:agent_role]}", :default => obj[:agent_role]),
-          :relator => I18n.t("enumerations.linked_agent_archival_record_relators.#{obj[:agent_relator]}",:default => obj[:agent_relator]),
+          :relator => I18n.t("enumerations.linked_agent_archival_record_relators.#{obj[:agent_relator]}",
+                             :default => obj[:agent_relator]),
         }
       end
       out[:file_uris] << obj[:file_uri]
@@ -77,7 +80,7 @@ class Composers
 
     return out if out.empty?
     
-    crunch(out[:bioghist])
+    crunch(out[:resource_bioghist])
     crunch(out[:resource_scopecontent])
     crunch(out[:phystech])
     crunch(out[:extent])
