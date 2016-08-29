@@ -29,7 +29,7 @@ class Composers
       ao_notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
       if out.empty?
         out = {
-          :identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
+          :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
           :resource_title => obj[:res_title],
           :bioghist => [],
           :resource_scopecontent => [],
