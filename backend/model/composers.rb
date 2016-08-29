@@ -139,7 +139,7 @@ class Composers
       latest = date if date > latest
     end
     earliest = latest = '?' if earliest == '9999'
-    earliest + ' -- ' + latest
+    earliest + (earliest == latest ? '' : " -- #{latest}")
   end
 
 
