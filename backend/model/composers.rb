@@ -29,13 +29,15 @@ class Composers
       ao_notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
       if out.empty?
         out = {
-          :identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
-          :resource_title => obj[:res_title],
-          :bioghist => [],
-          :resource_scopecontent => [],
-
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
+          :file_uris => [],
+
+          :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
+          :resource_title => obj[:res_title],
+          :resource_scopecontent => [],
+          :resource_bioghist => [],
+
           :date => [],
           :phystech => [],
           :extent=> [],
@@ -44,11 +46,10 @@ class Composers
           :userestrict => [],
           :rights_statements => [],
           :agents => [],
-          :file_uris => [],
         }
       end
 
-      out[:bioghist] << extract_note(res_notes, 'bioghist')
+      out[:resource_bioghist] << extract_note(res_notes, 'bioghist')
       out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
       out[:date] << [obj[:date_begin], obj[:date_end]]
       out[:phystech] << extract_note(ao_notes, 'phystech')
@@ -57,13 +58,21 @@ class Composers
       out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
       if obj[:rights_active] == 1
-        out[:rights_statements] << I18n.t("enumerations.rights_statement_rights_type.#{obj[:rights_type]}", :default => obj[:rights_type])
-      end
+        out[:rights_statements] << {
+          :type => I18n.t("enumerations.rights_statement_rights_type.#{obj[:rights_type]}",
+                          :default => obj[:rights_type]),
+          :permissions => obj[:rights_permissions],
+          :restrictions => obj[:rights_restrictions],
+          :restriction_start_date => obj[:rights_restriction_start_date],
+          :restriction_end_date => obj[:rights_restriction_end_date],
+        }
+        end
       if obj[:person_is_display] == 1 || obj[:corporate_entity_is_display] == 1 || obj[:family_is_display] == 1
         out[:agents] << {
           :name => obj[:person] || obj[:corporate_entity] || obj[:family],
           :role => I18n.t("enumerations.linked_agent_role.#{obj[:agent_role]}", :default => obj[:agent_role]),
-          :relator => I18n.t("enumerations.linked_agent_archival_record_relators.#{obj[:agent_relator]}",:default => obj[:agent_relator]),
+          :relator => I18n.t("enumerations.linked_agent_archival_record_relators.#{obj[:agent_relator]}",
+                             :default => obj[:agent_relator]),
         }
       end
       out[:file_uris] << obj[:file_uri]
@@ -71,7 +80,7 @@ class Composers
 
     return out if out.empty?
     
-    crunch(out[:bioghist])
+    crunch(out[:resource_bioghist])
     crunch(out[:resource_scopecontent])
     crunch(out[:phystech])
     crunch(out[:extent])
@@ -130,7 +139,7 @@ class Composers
       latest = date if date > latest
     end
     earliest = latest = '?' if earliest == '9999'
-    earliest + ' -- ' + latest
+    earliest + (earliest == latest ? '' : " -- #{latest}")
   end
 
 
@@ -167,6 +176,7 @@ class Composers
         .left_join(:date, :archival_object_id => :archival_object__id)
         .left_join(:note___ao_note, :archival_object_id => :archival_object__id)
         .left_join(:extent, :archival_object_id => :archival_object__id)
+        .exclude(:archival_object__component_id => nil)
         .select(Sequel.as(:digital_object__digital_object_id, :do_identifier),
                 Sequel.as(:archival_object__id, :ao_id),
                 Sequel.as(:archival_object__component_id, :component_id),
@@ -193,6 +203,10 @@ class Composers
                          Sequel.as(:res_note__notes, :res_notes),
                          Sequel.as(:rights_statement_rights_type__value, :rights_type),
                          Sequel.as(:rights_statement__active, :rights_active),
+                         Sequel.as(:rights_statement__permissions, :rights_permissions),
+                         Sequel.as(:rights_statement__restrictions, :rights_restrictions),
+                         Sequel.as(:rights_statement__restriction_start_date, :rights_restriction_start_date),
+                         Sequel.as(:rights_statement__restriction_end_date, :rights_restriction_end_date),
                          Sequel.as(:file_version__file_uri, :file_uri),
                          Sequel.as(:name_person__sort_name, :person),
                          Sequel.as(:name_corporate_entity__sort_name, :corporate_entity),
