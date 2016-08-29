@@ -57,8 +57,14 @@ class Composers
       out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
       if obj[:rights_active] == 1
-        out[:rights_statements] << I18n.t("enumerations.rights_statement_rights_type.#{obj[:rights_type]}", :default => obj[:rights_type])
-      end
+        out[:rights_statements] << {
+          :type => I18n.t("enumerations.rights_statement_rights_type.#{obj[:rights_type]}", :default => obj[:rights_type]),
+          :permissions => obj[:rights_permissions],
+          :restrictions => obj[:rights_restrictions],
+          :restriction_start_date => obj[:rights_restriction_start_date],
+          :restriction_end_date => obj[:rights_restriction_end_date],
+        }
+        end
       if obj[:person_is_display] == 1 || obj[:corporate_entity_is_display] == 1 || obj[:family_is_display] == 1
         out[:agents] << {
           :name => obj[:person] || obj[:corporate_entity] || obj[:family],
@@ -194,6 +200,10 @@ class Composers
                          Sequel.as(:res_note__notes, :res_notes),
                          Sequel.as(:rights_statement_rights_type__value, :rights_type),
                          Sequel.as(:rights_statement__active, :rights_active),
+                         Sequel.as(:rights_statement__permissions, :rights_permissions),
+                         Sequel.as(:rights_statement__restrictions, :rights_restrictions),
+                         Sequel.as(:rights_statement__restriction_start_date, :rights_restriction_start_date),
+                         Sequel.as(:rights_statement__restriction_end_date, :rights_restriction_end_date),
                          Sequel.as(:file_version__file_uri, :file_uri),
                          Sequel.as(:name_person__sort_name, :person),
                          Sequel.as(:name_corporate_entity__sort_name, :corporate_entity),
