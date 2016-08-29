@@ -167,6 +167,7 @@ class Composers
         .left_join(:date, :archival_object_id => :archival_object__id)
         .left_join(:note___ao_note, :archival_object_id => :archival_object__id)
         .left_join(:extent, :archival_object_id => :archival_object__id)
+        .exclude(:archival_object__component_id => nil)
         .select(Sequel.as(:digital_object__digital_object_id, :do_identifier),
                 Sequel.as(:archival_object__id, :ao_id),
                 Sequel.as(:archival_object__component_id, :component_id),
