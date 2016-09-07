@@ -1,4 +1,5 @@
-require_relative '../../../../common/mixed_content_parser'
+require_relative File.join(ASUtils.find_base_directory, 'common', 'mixed_content_parser')
+
 
 class ArchivesSpaceService < Sinatra::Base
 
