@@ -1,4 +1,4 @@
-require_relative File.join(ASUtils.find_base_directory, 'common', 'mixed_content_parser')
+require_relative File.join(ASUtils.find_base_directory, 'plugins/composers', 'mixed_content_parser')
 
 
 class ArchivesSpaceService < Sinatra::Base
@@ -37,7 +37,7 @@ class ArchivesSpaceService < Sinatra::Base
         json_response({:error => "Object not found for component id: #{params[:component_id]}"}, 400)
       else
         if format == 'html'
-          ERB.new(File.read('../plugins/composers/backend/views/detail.html.erb')).result(binding)
+          ERB.new(File.read('/opt/archivesspace/plugins/composers/backend/views/detail.html.erb')).result(binding)
         else
           json_response(record)
         end
