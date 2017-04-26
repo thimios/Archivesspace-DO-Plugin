@@ -151,7 +151,7 @@ class Composers
 
 
   def self.detail_url(id)
-    AppConfig[:backend_url] + BASE_DETAIL_URI + (id || '')
+    AppConfig[:backend_proxy_url] + BASE_DETAIL_URI + (id || '')
   end
 
 

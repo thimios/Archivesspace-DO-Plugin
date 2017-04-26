@@ -1,0 +1,6 @@
+<table>
+<% resp.each do |comp| %>
+  <tr>
+    <td><a href='<%= comp[:detail_url]%>'><%= comp[:title] %></a></td>
+  <tr>
+<% end %>
