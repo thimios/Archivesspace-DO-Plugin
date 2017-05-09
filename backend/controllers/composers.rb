@@ -26,8 +26,30 @@ class ArchivesSpaceService < Sinatra::Base
         end
       end
     end
+  end
+
+
+  Endpoint.get('/plugins/composers/archiveit')
+    .description("Get summarized Digital Object data for a specific Resource")
+    .params(["resource_id", String],
+      ["format", String, "Format of the data returned - json(default), html", :optional => true])
+    .permissions([])
+    .returns([200, "[(:digital_object)]"],
+      [400, :error]) \
+  do
+
+      resp = {:title => "Adele Fournet Collection of Bit Rosie Web Series", :extent => "100 Digital Objects", :display_url => "http://composers.dlts.org:8089/plugins/composers/summary?resource_id=MSS.460&format=html" }
+      if resp.empty?
+        json_response({:error => "Resource not found for identifier: #{params[:resource_id]}"}, 400)
+      else
+
+          json_response(resp)
+
+      end
 
   end
+
+
 
 
   Endpoint.get('/plugins/composers/detailed')

@@ -96,7 +96,83 @@ class Composers
     out
   end
 
+  def self.summary2(component_id)
+    ds = dataset(true).filter(:archival_object__component_id => component_id)
+    out = {}
 
+    ds.each do |obj|
+      res_notes = ASUtils.json_parse(obj[:res_notes] || '{}')
+      ao_notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
+      if out.empty?
+        out = {
+          :component_id => obj[:component_id],
+          :title => obj[:ao_title],
+          :file_uris => [],
+
+          :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
+          :resource_title => obj[:res_title],
+          :resource_scopecontent => [],
+          :resource_bioghist => [],
+
+          :date => [],
+          :phystech => [],
+          :extent=> [],
+          :item_scopecontent => [],
+          :accessrestrict => [],
+          :userestrict => [],
+          :rights_statements => [],
+          :agents => [],
+        }
+      end
+
+      out[:resource_bioghist] << extract_note(res_notes, 'bioghist')
+      out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
+      out[:date] << [obj[:date_begin], obj[:date_end]]
+      out[:phystech] << extract_note(ao_notes, 'phystech')
+      out[:extent] << obj[:extent_phys]
+      out[:item_scopecontent] << extract_note(ao_notes, 'scopecontent')
+      out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
+      out[:userestrict] << extract_note(ao_notes, 'userestrict')
+      if obj[:rights_active] == 1
+        out[:rights_statements] << {
+          :type => I18n.t("enumerations.rights_statement_rights_type.#{obj[:rights_type]}",
+                          :default => obj[:rights_type]),
+          :permissions => obj[:rights_permissions],
+          :restrictions => obj[:rights_restrictions],
+          :restriction_start_date => obj[:rights_restriction_start_date],
+          :restriction_end_date => obj[:rights_restriction_end_date],
+        }
+        end
+      if obj[:person_is_display] == 1 || obj[:corporate_entity_is_display] == 1 || obj[:family_is_display] == 1
+        out[:agents] << {
+          :name => obj[:person] || obj[:corporate_entity] || obj[:family],
+          :role => I18n.t("enumerations.linked_agent_role.#{obj[:agent_role]}", :default => obj[:agent_role]),
+          :relator => I18n.t("enumerations.linked_agent_archival_record_relators.#{obj[:agent_relator]}",
+                             :default => obj[:agent_relator]),
+        }
+      end
+      out[:file_uris] << obj[:file_uri]
+    end
+
+    return out if out.empty?
+    
+    crunch(out[:resource_bioghist])
+    crunch(out[:resource_scopecontent])
+    crunch(out[:phystech])
+    crunch(out[:extent])
+    crunch(out[:item_scopecontent])
+    crunch(out[:accessrestrict])
+    crunch(out[:userestrict])
+    crunch(out[:rights_statements])
+    crunch(out[:agents])
+    crunch(out[:file_uris])
+
+    out[:date] = find_date_range(out[:date])
+
+    out
+
+  end
+  
   def self.summary(resource_id)
     # come on ruby what's the nice way to set up that id array?
     ds = dataset.filter(:identifier => ASUtils.to_json(resource_id.split('.', 4).concat(Array.new(4)).take(4)))
