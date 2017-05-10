@@ -1,5 +1,5 @@
-#Composers Plugin
------------------------------------
+# Composers Plugin
+
 
 This is an ArchivesSpace plugin that extends the ArchivesSpace API to allow rea$
 
