@@ -38,9 +38,11 @@ class ArchivesSpaceService < Sinatra::Base
       [400, :error]) \
   do
       summary = Composers.summary(params[:resource_id])
+      detail = Composers.detailed(summary[0][:component_id])
+
 
       resp = {
-        :title => "Adele Fournet Collection of Bit Rosie Web Series", 
+        :title => detail[:resource_title], 
         :extent => summary.size.to_s + " Digital Objects", 
         :display_url =>  File.join(AppConfig[:backend_proxy_url], "plugins/composers/summary?resource_id=#{params[:resource_id]}&format=html") 
       }
