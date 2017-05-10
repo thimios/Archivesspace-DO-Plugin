@@ -37,8 +37,13 @@ class ArchivesSpaceService < Sinatra::Base
     .returns([200, "[(:digital_object)]"],
       [400, :error]) \
   do
+      summary = Composers.summary(params[:resource_id])
 
-      resp = {:title => "Adele Fournet Collection of Bit Rosie Web Series", :extent => "100 Digital Objects", :display_url => "http://composers.dlts.org:8089/plugins/composers/summary?resource_id=MSS.460&format=html" }
+      resp = {
+        :title => "Adele Fournet Collection of Bit Rosie Web Series", 
+        :extent => summary.size.to_s + " Digital Objects", 
+        :display_url =>  File.join(AppConfig[:backend_proxy_url], 'plugins/composers/summary?resource_id=MSS.460&format=html') 
+      }
       if resp.empty?
         json_response({:error => "Resource not found for identifier: #{params[:resource_id]}"}, 400)
       else
@@ -48,9 +53,6 @@ class ArchivesSpaceService < Sinatra::Base
       end
 
   end
-
-
-
 
   Endpoint.get('/plugins/composers/detailed')
          .description("Get detailed data for a specific digital object record")
