@@ -1,6 +1,6 @@
 <table>
 <% resp.each do |comp| %>
   <tr>
-    <td><a href='<%= comp[:detail_url]%>'><%= comp[:title] %></a></td>
+    <td><a href='<%= comp[:detail_url] + "&format=html" %>'><%= comp[:title] %> (<%= comp[:extent][0] %>) </a></td>
   <tr>
 <% end %>

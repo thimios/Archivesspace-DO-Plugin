@@ -42,7 +42,7 @@ class ArchivesSpaceService < Sinatra::Base
       resp = {
         :title => "Adele Fournet Collection of Bit Rosie Web Series", 
         :extent => summary.size.to_s + " Digital Objects", 
-        :display_url =>  File.join(AppConfig[:backend_proxy_url], 'plugins/composers/summary?resource_id=MSS.460&format=html') 
+        :display_url =>  File.join(AppConfig[:backend_proxy_url], "plugins/composers/summary?resource_id=#{params[:resource_id]}&format=html") 
       }
       if resp.empty?
         json_response({:error => "Resource not found for identifier: #{params[:resource_id]}"}, 400)
