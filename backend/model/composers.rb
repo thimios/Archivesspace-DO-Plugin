@@ -4,6 +4,7 @@ class Composers
 
 
   #  resource:
+  #  -  ead_location
   #  -  identifier
   #  -  title
   #  -  bioghist note
@@ -35,6 +36,7 @@ class Composers
 
           :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
           :resource_title => obj[:res_title],
+          :ead_location => obj[:ead_location],
           :resource_scopecontent => [],
           :resource_bioghist => [],
 
@@ -199,6 +201,7 @@ class Composers
           .left_join(Sequel.as(:enumeration_value, :relator), :relator__id => :linked_agents_rlshp__relator_id)
           .select_append(Sequel.as(:resource__identifier, :res_identifier),
                          Sequel.as(:resource__title, :res_title),
+                         Sequel.as(:resource__ead_location, :ead_location),
                          Sequel.as(:res_note__notes, :res_notes),
                          Sequel.as(:rights_statement_rights_type__value, :rights_type),
                          Sequel.as(:rights_statement__active, :rights_active),

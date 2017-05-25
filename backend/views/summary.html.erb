@@ -1,7 +1,17 @@
 <table>
 <h2>NYU Libraries: Archiving Websites of Contemporary Composers Demo Site</h2>
 <h2><%= record[:resource_identifier] %>: <%= record[:resource_title] %></h2>
-<h3><%= resp.size.to_s + " digital objects" %></h3>
+
+<br><a href='<%= record[:ead_location] %>'>View Finding Aid [<%= record[:ead_location] %>]</a>
+
+<h3>Extent</h3>
+<%= resp.size.to_s + " digital objects" %>
+
+<h3>Scope and Content</h3>
+<%= record[:resource_scopecontent][0] %>
+
+<h3>Digital Assets</h3>
+
 <% resp.each do |comp| %>
   <tr>
     <td><a href='<%= comp[:detail_url] + "&format=html" %>'><%= comp[:title] %> (<%= comp[:extent][0] %>) </a></td>
