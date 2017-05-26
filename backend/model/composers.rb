@@ -33,7 +33,8 @@ class Composers
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
           :file_uris => [],
-
+          :parent_id => obj[:parent_id],
+          :parent_name => obj[:parent_name],
           :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
           :resource_title => obj[:res_title],
           :ead_location => obj[:ead_location],
@@ -62,7 +63,7 @@ class Composers
       out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
       out[:date] << [obj[:date_begin], obj[:date_end]]
       out[:phystech] << extract_note(ao_notes, 'phystech')
-      out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
+      out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]}  in #{obj[:extent_container_summary]}"
       out[:item_scopecontent] << extract_note(ao_notes, 'scopecontent')
       out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
@@ -115,14 +116,17 @@ class Composers
       if out[obj[:ao_id]]
         out[obj[:ao_id]][:date] << [obj[:date_begin], obj[:date_end]]
         out[obj[:ao_id]][:phystech] << extract_note(notes, 'phystech')
-        out[obj[:ao_id]][:extent] << obj[:extent_phys]
+        #out[obj[:ao_id]][:extent] << obj[:extent_phys]
+        out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]}  in #{obj[:extent_container_summary]}"
       else
         out[obj[:ao_id]] = {
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
+          :parent_id => obj[:parent_id],
           :date => [[obj[:date_begin], obj[:date_end]]],
           :phystech => [extract_note(notes, 'phystech')],
-          :extent=> [obj[:extent_phys]],
+          :extent => "#{obj[:extent_number]} #{obj[:extent_value]}  in #{obj[:extent_container_summary]}",
+          #:extent=> [obj[:extent_phys]],
           :detail_url => detail_url(obj[:component_id]),
         }
       end
@@ -130,7 +134,7 @@ class Composers
 
     out.values.map do |v|
       crunch(v[:phystech])
-      crunch(v[:extent])
+      #crunch(v[:extent])
       v[:date] = find_date_range(v[:date])
       v
     end
@@ -198,7 +202,9 @@ class Composers
                 Sequel.as(:extent__number, :extent_number),
                 Sequel.as(:extent__extent_type_id, :extent_type_id),
                 Sequel.as(:extent__container_summary, :extent_container_summary),
-                Sequel.as(:enumeration_value__value, :extent_value))
+                Sequel.as(:enumeration_value__value, :extent_value),
+                Sequel.as(:archival_object__parent_id, :parent_id),
+                Sequel.as(:archival_object__parent_name, :parent_name))
 
 
 
