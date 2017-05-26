@@ -76,6 +76,8 @@
 
     <h2>Collection: <%= record[:resource_identifier] %> <%= record[:resource_title] %></h2>
 
+    <br><a href='<%= record[:ead_location] %>'>View Finding Aid [<%= record[:ead_location] %>]</a>
+    
     <h3>Scope and Contents:</h3>
     <ul>
     <% record[:resource_scopecontent].each do |v| %>

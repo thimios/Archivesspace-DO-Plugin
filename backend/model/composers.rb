@@ -4,6 +4,7 @@ class Composers
 
 
   #  resource:
+  #  -  ead_location
   #  -  identifier
   #  -  title
   #  -  bioghist note
@@ -35,25 +36,33 @@ class Composers
 
           :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
           :resource_title => obj[:res_title],
+          :ead_location => obj[:ead_location],
           :resource_scopecontent => [],
           :resource_bioghist => [],
-
+          :do_identifier => obj[:do_identifier],
           :date => [],
           :phystech => [],
           :extent=> [],
+          :extent_container_summary => obj[:extent_container_summary],
+          :extent_number => obj[:extent_number],
+          :extent_type_id => obj[:extent_type_id],
+          :extent_type => obj[:extent_type],
+          :extent_value => obj[:extent_value],
           :item_scopecontent => [],
           :accessrestrict => [],
           :userestrict => [],
           :rights_statements => [],
           :agents => [],
         }
+
+
       end
 
       out[:resource_bioghist] << extract_note(res_notes, 'bioghist')
       out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
       out[:date] << [obj[:date_begin], obj[:date_end]]
       out[:phystech] << extract_note(ao_notes, 'phystech')
-      out[:extent] << obj[:extent_phys]
+      out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
       out[:item_scopecontent] << extract_note(ao_notes, 'scopecontent')
       out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
@@ -175,6 +184,7 @@ class Composers
         .left_join(:date, :archival_object_id => :archival_object__id)
         .left_join(:note___ao_note, :archival_object_id => :archival_object__id)
         .left_join(:extent, :archival_object_id => :archival_object__id)
+        .left_join(:enumeration_value, :id => :extent__extent_type_id)
         .exclude(:archival_object__component_id => nil)
         .select(Sequel.as(:digital_object__digital_object_id, :do_identifier),
                 Sequel.as(:archival_object__id, :ao_id),
@@ -184,7 +194,13 @@ class Composers
                 Sequel.as(:date__begin, :date_begin),
                 Sequel.as(:date__end, :date_end),
                 Sequel.as(:ao_note__notes, :ao_notes),
-                Sequel.as(:extent__physical_details, :extent_phys))
+                Sequel.as(:extent__physical_details, :extent_phys),
+                Sequel.as(:extent__number, :extent_number),
+                Sequel.as(:extent__extent_type_id, :extent_type_id),
+                Sequel.as(:extent__container_summary, :extent_container_summary),
+                Sequel.as(:enumeration_value__value, :extent_value))
+
+
 
       if detailed
         ds = ds.left_join(:note___res_note, :resource_id => :resource__id)
@@ -199,6 +215,7 @@ class Composers
           .left_join(Sequel.as(:enumeration_value, :relator), :relator__id => :linked_agents_rlshp__relator_id)
           .select_append(Sequel.as(:resource__identifier, :res_identifier),
                          Sequel.as(:resource__title, :res_title),
+                         Sequel.as(:resource__ead_location, :ead_location),
                          Sequel.as(:res_note__notes, :res_notes),
                          Sequel.as(:rights_statement_rights_type__value, :rights_type),
                          Sequel.as(:rights_statement__active, :rights_active),

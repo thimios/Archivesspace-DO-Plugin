@@ -15,7 +15,11 @@ class ArchivesSpaceService < Sinatra::Base
     unless ['json', 'html'].include?(format)
       json_response({:error => "Unrecognized format: #{format}. Must be 'json' or 'html'"}, 400)
     else
+
       resp = Composers.summary(params[:resource_id])
+      record = Composers.detailed(resp[0][:component_id])
+      
+
       if resp.empty?
         json_response({:error => "Resource not found for identifier: #{params[:resource_id]}"}, 400)
       else
