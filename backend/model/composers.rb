@@ -21,6 +21,36 @@ class Composers
   #  -  rights statements
   #  -  names of linked agents
 
+  def self.get_parents(digital_objects)
+    parents = Hash.new
+
+    digital_objects.each do |obj|
+      ao = ao_dataset(obj[:parent_id])
+      if parents.has_key? obj[:parent_id] then
+        parent_id = obj[:parent_id]
+        objs = parents[parent_id][:objs]
+        objs.push obj
+        parents[obj[:parent_id]] = { :ao => ao, :objs => objs }
+      else
+        
+        parents[obj[:parent_id]] = { :ao => ao, :objs => [obj]}
+      end
+
+    end
+
+    parents
+  end
+
+  def self.ao_dataset(ao_id)
+    DB.open do |db|
+      ds = db[:archival_object]
+      ds2 = ds.select(:title).where(:id => ao_id).all
+      ds2
+    end
+
+
+  end
+
   def self.detailed(component_id)
     ds = dataset(true).filter(:archival_object__component_id => component_id)
     out = {}
@@ -123,6 +153,7 @@ class Composers
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
           :parent_id => obj[:parent_id],
+          :parent_name => obj[:parent_name],
           :date => [[obj[:date_begin], obj[:date_end]]],
           :phystech => [extract_note(notes, 'phystech')],
           :extent => "#{obj[:extent_number]} #{obj[:extent_value]}  in #{obj[:extent_container_summary]}",

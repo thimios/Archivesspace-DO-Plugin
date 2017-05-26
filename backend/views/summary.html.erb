@@ -12,8 +12,11 @@
 
 <h3>Digital Assets</h3>
 
-<% resp.each do |comp| %>
-  <tr>
-    <td><a href='<%= comp[:detail_url] + "&format=html" %>'><%= comp[:title] %> (<%= comp[:extent][0] %>) </a></td>
-  <tr>
+<% parents.each do |aobj| %> 
+  <h4><%= aobj[1][:ao][0][:title] %></h4>
+    <table>
+      <% aobj[1][:objs].each do |dobj| %>
+        <tr><td><a href='<%= dobj[:detail_url] + "&format=html" %>'><%= dobj[:title] %> (<%= dobj[:extent] %>)</a></td></tr>
+  	  <% end %>
+  	</table>
 <% end %>

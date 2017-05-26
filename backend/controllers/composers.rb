@@ -18,6 +18,7 @@ class ArchivesSpaceService < Sinatra::Base
 
       resp = Composers.summary(params[:resource_id])
       record = Composers.detailed(resp[0][:component_id])
+      parents = Composers.get_parents(resp)
       
 
       if resp.empty?
