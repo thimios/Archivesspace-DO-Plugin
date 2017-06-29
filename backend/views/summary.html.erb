@@ -1,8 +1,16 @@
-<table>
+<html>
+  <head>
+    <title><%= record[:component_id] %>: <%=record[:title] %></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  </head>
+    
+  <body>
+    <div class='container'>
+
 <h2>NYU Libraries: Archiving Websites of Contemporary Composers Demo Site</h2>
 <h2><%= record[:resource_identifier] %>: <%= record[:resource_title] %></h2>
 
-<br><a href='<%= record[:ead_location] %>'>View Finding Aid [<%= record[:ead_location] %>]</a>
+<br><a href='<%= record[:ead_location] %>'>View Finding Aid [<%= record[:ead_location] %></a>
 
 <h3>Extent</h3>
 <%= resp.size.to_s + " digital objects" %>
@@ -20,3 +28,6 @@
   	  <% end %>
   	</table>
 <% end %>
+</div>
+</body>
+</html>
