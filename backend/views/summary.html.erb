@@ -6,13 +6,16 @@
     
   <body>
     <div class='container'>
-      <h2>NYU Libraries: Archiving Websites of Contemporary Composers Demo Site</h2>
+      <h1>NYU Archive of Contemporary Composers Websites API Demo Site</h1>
       <h2><%= record[:resource_identifier] %>: <%= record[:resource_title] %></h2>
-      <br><a href='<%= record[:ead_location] %>'>View Finding Aid [<%= record[:ead_location] %></a>
+      <br><a href='<%= record[:ead_location] %>'>View Finding Aid <%= record[:ead_location] %></a>
       <h3>Extent</h3>
       <%= resp.size.to_s + " digital objects" %>
       <h3>Scope and Content</h3>
       <%= record[:resource_scopecontent][0] %>
+       <h3>Biography or History</h3>
+      <%= record[:resource_bioghist][0] %>
+
       <h3>Digital Assets</h3>
       <% parents.each do |aobj| %> 
         <h4><%= aobj[1][:ao][0][:title] %></h4>

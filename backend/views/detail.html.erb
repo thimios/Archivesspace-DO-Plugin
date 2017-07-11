@@ -6,93 +6,31 @@
     
   <body>
     <div class='container'>
-    <h1><%= record[:component_id] %>: <%= record[:title] %></h1>
-
-    <ul>
-      <% record[:file_uris].each do |uri| %>
-      <li><a href="<%= uri %>"><%= uri %></a></li>
-      <% end %>
-    </ul>
-
-    <h3>Date: <%= record[:date] %></h3>
-
-    <h3>Physical Characteristics and Technical Requirements:</h3>
-    <ul>
-    <% record[:phystech].each do |v| %>
-      <li><%= v %></li>
-    <% end %>
-    </ul>
-
-    <h3>Extent:</h3>
-    <ul>
-    <% record[:extent].each do |v| %>
-      <li><%= v %></li>
-    <% end %>
-    </ul>
-
-    <h3>Scope and Contents:</h3>
-    <ul>
-    <% record[:item_scopecontent].each do |v| %>
-      <li><%= MixedContentParser::parse(v, "", { :wrap_blocks => true } ) %></li>
-    <% end %>
-    </ul>
-
-    <h3>Conditions Governing Access:</h3>
-    <ul>
-    <% record[:accessrestrict].each do |v| %>
-      <li><%= MixedContentParser::parse(v, "", { :wrap_blocks => true } ) %></li>
-    <% end %>
-    </ul>
-
-    <h3>Conditions Governing Use:</h3>
-    <ul>
-    <% record[:userestrict].each do |v| %>
-      <li><%= MixedContentParser::parse(v, "", { :wrap_blocks => true } ) %></li>
-    <% end %>
-    </ul>
-
-    <h3>Rights Statements:</h3>
-    <ul>
-    <% record[:rights_statements].each do |v| %>
-      <li>
-        Type: <%= v[:type] %><br/>
-        Permissions: <%= v[:permissions] %><br/>
-        Restrictions: <%= v[:restrictions] %><br/>
-        Restriction start: <%= v[:restriction_start_date] %><br/>
-        Restriction end: <%= v[:restriction_end_date] %><br/>
-      </li>
-    <% end %>
-    </ul>
-
-    <h3>Agents:</h3>
-    <ul>
-    <% record[:agents].each do |v| %>
-      <li>
-        Name: <%= v[:name] %><br/>
-        Role: <%= v[:role] %><br/>
-        Relator: <%= v[:relator] %><br/>
-      </li>
-    <% end %>
-    </ul>
+      <h1>NYU Archive of Contemporary Composers Websites API Demo Site</h1>
+      <h2><%= record[:resource_identifier] %> <%= record[:resource_title] %> <br><a href="<%= col_url %>">view all digital objects</a></h2>
+      <h3><%= parent[0][:title] %></h3>
+      <h4><%= record[:title] %></h4>
 
 
-    <h2>Collection: <%= record[:resource_identifier] %> <%= record[:resource_title] %></h2>
+        <% record[:file_uris].each do |uri| %>
+          <iframe src="<%= uri %>" height="315" width="560" allowfullscreen="" frameborder="0"></iframe>
+        <% end %>
+      
+      <br />
+      <h4>Notes<h4>
 
-    <br><a href='<%= record[:ead_location] %>'>View Finding Aid [<%= record[:ead_location] %>]</a>
-    
-    <h3>Scope and Contents:</h3>
-    <ul>
-    <% record[:resource_scopecontent].each do |v| %>
-      <li><%= MixedContentParser::parse(v, "", { :wrap_blocks => true } ) %></li>
-    <% end %>
-    </ul>
+      <table class="table">
+        <tr>
+          <td>date</td><td><%= record[:date] %></td>
+        </tr>
+        <% if record[:extent].size != 0 %>
+          <tr>
+            <td>extent</td><td><%= record[:extent][0] %></td>
+          </tr>
+        <% end %>
 
-    <h3>Biographical / Historical:</h3>
-    <ul>
-    <% record[:resource_bioghist].each do |v| %>
-      <li><%= MixedContentParser::parse(v, "", { :wrap_blocks => true } ) %></li>
-    <% end %>
-    </ul>
+      </table>
+
     </div>
   </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>

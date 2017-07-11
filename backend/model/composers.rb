@@ -21,6 +21,10 @@ class Composers
   #  -  rights statements
   #  -  names of linked agents
 
+  def self.get_parent(digital_object)
+    ao = ao_dataset(digital_object[:parent_id])
+  end
+
   def self.get_parents(digital_objects)
     parents = Hash.new
 
@@ -43,9 +47,11 @@ class Composers
 
   def self.ao_dataset(ao_id)
     DB.open do |db|
-      ds = db[:archival_object]
-      ds2 = ds.select(:title).where(:id => ao_id).all
-      ds2
+
+
+      ds = db[:archival_object].left_join(:note___ao_note, :archival_object_id => :archival_object__id)
+      .select(:title).where(:archival_object__id => ao_id).all
+
     end
 
 
@@ -93,7 +99,7 @@ class Composers
       out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
       out[:date] << [obj[:date_begin], obj[:date_end]]
       out[:phystech] << extract_note(ao_notes, 'phystech')
-      out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]}  in #{obj[:extent_container_summary]}"
+      out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]}  #{obj[:extent_container_summary]}"
       out[:item_scopecontent] << extract_note(ao_notes, 'scopecontent')
       out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
@@ -147,7 +153,7 @@ class Composers
         out[obj[:ao_id]][:date] << [obj[:date_begin], obj[:date_end]]
         out[obj[:ao_id]][:phystech] << extract_note(notes, 'phystech')
         #out[obj[:ao_id]][:extent] << obj[:extent_phys]
-        out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]}  in #{obj[:extent_container_summary]}"
+        out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
       else
         out[obj[:ao_id]] = {
           :component_id => obj[:component_id],
@@ -156,7 +162,7 @@ class Composers
           :parent_name => obj[:parent_name],
           :date => [[obj[:date_begin], obj[:date_end]]],
           :phystech => [extract_note(notes, 'phystech')],
-          :extent => "#{obj[:extent_number]} #{obj[:extent_value]}  in #{obj[:extent_container_summary]}",
+          :extent => "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}",
           #:extent=> [obj[:extent_phys]],
           :detail_url => detail_url(obj[:component_id]),
         }

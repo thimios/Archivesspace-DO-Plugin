@@ -24,6 +24,7 @@ class ArchivesSpaceService < Sinatra::Base
       if resp.empty?
         json_response({:error => "Resource not found for identifier: #{params[:resource_id]}"}, 400)
       else
+
         if format == 'html'
           ERB.new(File.read(File.join(ASUtils.find_base_directory, '/plugins/composers/backend/views/summary.html.erb'))).result(binding)
         else
@@ -75,6 +76,8 @@ class ArchivesSpaceService < Sinatra::Base
       json_response({:error => "Unrecognized format: #{format}. Must be 'json' or 'html'"}, 400)
     else
       record = Composers.detailed(params[:component_id])
+      parent = Composers.get_parent(record)
+      col_url = AppConfig[:backend_proxy_url] + "/plugins/composers/summary?resource_id=" + record[:resource_identifier] + "&format=html"
       if record.empty?
         json_response({:error => "Object not found for component id: #{params[:component_id]}"}, 400)
       else
