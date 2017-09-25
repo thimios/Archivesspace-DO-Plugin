@@ -20,6 +20,16 @@ class ArchivesSpaceService < Sinatra::Base
       record = Composers.detailed(resp[0][:component_id])
       parents = Composers.get_parents(resp)
       
+      response = json_response(
+          :version => "0", 
+          :resource_identifier => record[:resource_identifier], 
+          :resource_title => record[:resource_title], 
+          :ead_location => record[:ead_location],
+          :scopecontent => record[:resource_scopecontent][0],
+          :bioghist => record[:resource_bioghist][0],
+          :parents => parents,
+          :digital_objects => resp)
+      
 
       if resp.empty?
         json_response({:error => "Resource not found for identifier: #{params[:resource_id]}"}, 400)
@@ -28,7 +38,7 @@ class ArchivesSpaceService < Sinatra::Base
         if format == 'html'
           ERB.new(File.read(File.join(ASUtils.find_base_directory, '/plugins/composers/backend/views/summary.html.erb'))).result(binding)
         else
-          json_response(resp)
+          response
         end
       end
     end
@@ -75,16 +85,22 @@ class ArchivesSpaceService < Sinatra::Base
     unless ['json', 'html'].include?(format)
       json_response({:error => "Unrecognized format: #{format}. Must be 'json' or 'html'"}, 400)
     else
+
       record = Composers.detailed(params[:component_id])
-      parent = Composers.get_parent(record)
-      col_url = AppConfig[:backend_proxy_url] + "/plugins/composers/summary?resource_id=" + record[:resource_identifier] + "&format=html"
+
+      response = json_response(
+        :ao => record,
+        :parent => Composers.get_parent(record),
+        :col_url => AppConfig[:backend_proxy_url] + "/plugins/composers/summary?resource_id=" + record[:resource_identifier] + "&format=html"
+      )
+
       if record.empty?
         json_response({:error => "Object not found for component id: #{params[:component_id]}"}, 400)
       else
         if format == 'html'
           ERB.new(File.read(File.join(ASUtils.find_base_directory, '/plugins/composers/backend/views/detail.html.erb'))).result(binding)
         else
-          json_response(record)
+          response
         end
       end
     end

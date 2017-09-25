@@ -23,6 +23,15 @@ class Composers
 
   def self.get_parent(digital_object)
     ao = ao_dataset(digital_object[:parent_id])
+    notes = ASUtils.json_parse(ao[:ao_notes] || '{}')
+    out = {
+          :title => ao[:ao_title],
+          :bioghist => []
+    }
+    out[:bioghist] << extract_note(notes, 'bioghist')
+    crunch(out[:bioghist])
+    out
+
   end
 
   def self.get_parents(digital_objects)
@@ -30,31 +39,32 @@ class Composers
 
     digital_objects.each do |obj|
       ao = ao_dataset(obj[:parent_id])
-      if parents.has_key? obj[:parent_id] then
-        parent_id = obj[:parent_id]
-        objs = parents[parent_id][:objs]
-        objs.push obj
-        parents[obj[:parent_id]] = { :ao => ao, :objs => objs }
-      else
-        
-        parents[obj[:parent_id]] = { :ao => ao, :objs => [obj]}
+      notes = ASUtils.json_parse(ao[:ao_notes] || '{}')
+
+      if ! parents.has_key? obj[:parent_id] then
+        out = {
+          :title => ao[:ao_title],
+          :bioghist => []
+        }
+
+        out[:bioghist] << extract_note(notes, 'bioghist')
+        crunch(out[:bioghist])
+
+        parents[obj[:parent_id]] = out
       end
-
     end
-
     parents
   end
 
   def self.ao_dataset(ao_id)
     DB.open do |db|
-
-
-      ds = db[:archival_object].left_join(:note___ao_note, :archival_object_id => :archival_object__id)
-      .select(:title).where(:archival_object__id => ao_id).all
-
+      ao = db[:archival_object]
+        .left_join(:note___ao_note, :archival_object_id => :archival_object__id)
+        .select(
+          Sequel.as(:archival_object__title, :ao_title), 
+          Sequel.as(:ao_note__notes, :ao_notes))
+        .where(:archival_object__id => ao_id).first
     end
-
-
   end
 
   def self.detailed(component_id)
@@ -70,7 +80,6 @@ class Composers
           :title => obj[:ao_title],
           :file_uris => [],
           :parent_id => obj[:parent_id],
-          :parent_name => obj[:parent_name],
           :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
           :resource_title => obj[:res_title],
           :ead_location => obj[:ead_location],
@@ -159,7 +168,6 @@ class Composers
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
           :parent_id => obj[:parent_id],
-          :parent_name => obj[:parent_name],
           :date => [[obj[:date_begin], obj[:date_end]]],
           :phystech => [extract_note(notes, 'phystech')],
           :extent => "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}",
@@ -240,8 +248,7 @@ class Composers
                 Sequel.as(:extent__extent_type_id, :extent_type_id),
                 Sequel.as(:extent__container_summary, :extent_container_summary),
                 Sequel.as(:enumeration_value__value, :extent_value),
-                Sequel.as(:archival_object__parent_id, :parent_id),
-                Sequel.as(:archival_object__parent_name, :parent_name))
+                Sequel.as(:archival_object__parent_id, :parent_id))
 
 
 
