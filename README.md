@@ -13,12 +13,10 @@ Clone the reposiory from github
 
   $ cd /path/to/archivesspace/plugins 
 
-  $ git clone https://github.com/NYULibraries/composers
+  $ git clone https://github.com/NYULibraries/Archivesspace-DO-Plugin
 
 Enable the plugin by editing the file in `config/config.rb`:
-  AppConfig[:plugins] = ['some_plugin', 'composers']
+  AppConfig[:plugins] = ['some_exisitign plugin', 'composers']
 
 Add a proxy for your backend url  in `config/config.rb`:
   AppConfig[:backend_proxy_url] = "http://example.com:8089"
-
-
