@@ -64,17 +64,9 @@ class ArchivesSpaceService < Sinatra::Base
        [400, :error]) \
     do
 
-    record = Composers.detailed(params[:component_id])
+    archival_object = Composers.detailed(params[:component_id])
 
-    if record.empty?
-      json_response({:error => "Object not found for component id: #{params[:component_id]}"}, 400)
-    else
-
-      json_response(
-        :ao => record,
-        :parent => Composers.get_parent(record),
-        :col_url => AppConfig[:backend_proxy_url] + "/plugins/composers/summary?resource_id=" + record[:resource_identifier])
-    end
+    json_response(archival_object)
   end
 
 end

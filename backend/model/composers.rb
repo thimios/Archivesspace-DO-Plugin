@@ -62,35 +62,23 @@ class Composers
           :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
           :resource_title => obj[:res_title],
           :ead_location => obj[:ead_location],
-          :resource_scopecontent => [],
-          :resource_bioghist => [],
           :do_identifier => obj[:do_identifier],
           :date => [],
           :phystech => [],
-          :extent=> [],
-          :extent_container_summary => obj[:extent_container_summary],
-          :extent_number => obj[:extent_number],
-          :extent_type_id => obj[:extent_type_id],
-          :extent_type => obj[:extent_type],
-          :extent_value => obj[:extent_value],
           :item_scopecontent => [],
           :accessrestrict => [],
           :userestrict => [],
           :rights_statements => [],
           :agents => [],
         }
-
-
       end
 
-      out[:resource_bioghist] << extract_note(res_notes, 'bioghist')
-      out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
       out[:date] << [obj[:date_begin], obj[:date_end]]
       out[:phystech] << extract_note(ao_notes, 'phystech')
-      out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]}  #{obj[:extent_container_summary]}"
       out[:item_scopecontent] << extract_note(ao_notes, 'scopecontent')
       out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
+
       if obj[:rights_active] == 1
         out[:rights_statements] << {
           :type => I18n.t("enumerations.rights_statement_rights_type.#{obj[:rights_type]}",
@@ -100,7 +88,8 @@ class Composers
           :restriction_start_date => obj[:rights_restriction_start_date],
           :restriction_end_date => obj[:rights_restriction_end_date],
         }
-        end
+      end
+
       if obj[:person_is_display] == 1 || obj[:corporate_entity_is_display] == 1 || obj[:family_is_display] == 1
         out[:agents] << {
           :name => obj[:person] || obj[:corporate_entity] || obj[:family],
@@ -109,15 +98,20 @@ class Composers
                              :default => obj[:agent_relator]),
         }
       end
-      out[:file_uris] << obj[:file_uri]
-    end
 
-    return out if out.empty?
+      if obj[:extent].to_s.empty?
+          out[:extent] = nil
+      else  
+        out[:extent_number] = "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
+      end 
+      
+      out[:file_uris] << obj[:file_uri]
+
+    end
     
-    crunch(out[:resource_bioghist])
-    crunch(out[:resource_scopecontent])
+    return out if out.empty?
+
     crunch(out[:phystech])
-    crunch(out[:extent])
     crunch(out[:item_scopecontent])
     crunch(out[:accessrestrict])
     crunch(out[:userestrict])
