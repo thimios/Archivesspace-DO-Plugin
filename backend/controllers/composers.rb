@@ -38,22 +38,20 @@ class ArchivesSpaceService < Sinatra::Base
       [400, :error]) \
     do
      
-    resp = Composers.summary(params[:resource_id])
-    record = Composers.detailed(resp[0][:component_id])
-    parents = Composers.get_parents(resp)
+    digital_objects = Composers.summary(params[:resource_id])
+    record = Composers.detailed(digital_objects[0][:component_id])
 
-    if resp.empty?
+    if digital_objects.empty?
       json_response({:error => "Resource not found for identifier: #{params[:resource_id]}"}, 400)
     else
       json_response(
-        :version => "0", 
+        :version => "0.0.1", 
         :resource_identifier => record[:resource_identifier], 
         :resource_title => record[:resource_title], 
         :ead_location => record[:ead_location],
         :scopecontent => record[:resource_scopecontent][0],
         :bioghist => record[:resource_bioghist][0],
-        :parents => parents,
-        :digital_objects => resp)
+        :digital_objects => digital_objects)
     end
   end
 

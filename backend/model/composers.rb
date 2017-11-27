@@ -34,27 +34,6 @@ class Composers
 
   end
 
-  def self.get_parents(digital_objects)
-    parents = Hash.new
-
-    digital_objects.each do |obj|
-      ao = ao_dataset(obj[:parent_id])
-      notes = ASUtils.json_parse(ao[:ao_notes] || '{}')
-
-      if ! parents.has_key? obj[:parent_id] then
-        out = {
-          :title => ao[:ao_title],
-          :bioghist => []
-        }
-
-        out[:bioghist] << extract_note(notes, 'bioghist')
-        crunch(out[:bioghist])
-
-        parents[obj[:parent_id]] = out
-      end
-    end
-    parents
-  end
 
   def self.ao_dataset(ao_id)
     DB.open do |db|
@@ -164,21 +143,33 @@ class Composers
         #out[obj[:ao_id]][:extent] << obj[:extent_phys]
         out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
       else
-        out[obj[:ao_id]] = {
+        component_data = {
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
           :parent_id => obj[:parent_id],
           :date => [[obj[:date_begin], obj[:date_end]]],
-          :phystech => [extract_note(notes, 'phystech')],
-          :extent => "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}",
-          #:extent=> [obj[:extent_phys]],
           :detail_url => detail_url(obj[:component_id]),
         }
+
+        if obj[:extent_number].to_s.empty?
+          component_data[:extent_number] = nil
+        else  
+          component_data[:extent_number] = "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
+        end 
+
+        if extract_note(notes, 'phystech').to_s.empty? then
+          component_data[:phystech] = nil
+        else
+          component_data[:phystech] = [extract_note(notes, 'phystech')]
+        end 
+
+
+        out[obj[:ao_id]] = component_data
       end
     end
 
     out.values.map do |v|
-      crunch(v[:phystech])
+      #crunch(v[:phystech])
       #crunch(v[:extent])
       v[:date] = find_date_range(v[:date])
       v
