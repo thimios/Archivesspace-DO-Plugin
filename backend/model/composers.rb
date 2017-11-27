@@ -31,9 +31,7 @@ class Composers
     out[:bioghist] << extract_note(notes, 'bioghist')
     crunch(out[:bioghist])
     out
-
   end
-
 
   def self.ao_dataset(ao_id)
     DB.open do |db|
@@ -44,13 +42,36 @@ class Composers
           Sequel.as(:ao_note__notes, :ao_notes))
         .where(:archival_object__id => ao_id).first
     end
+  end  
+  
+  def self.get_resource(component_id)
+    ds = dataset(true).filter(:archival_object__component_id => component_id)
+    out = {}
+    ds.each do |obj|
+      res_notes = ASUtils.json_parse(obj[:res_notes] || '{}')
+      ao_notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
+      if out.empty?
+        out = {
+          :resource_identifier => ASUtils.json_parse(obj[:res_identifier]).compact.join('.'),
+          :resource_title => obj[:res_title],
+          :ead_location => obj[:ead_location],
+          :resource_scopecontent => [],
+          :resource_bioghist => []
+        }
+      end
+      out[:resource_bioghist] << extract_note(res_notes, 'bioghist')
+      out[:resource_scopecontent] << extract_note(res_notes, 'scopecontent')
+    end
+    crunch(out[:resource_bioghist])
+    crunch(out[:resource_scopecontent])
+    out
   end
-
+  
   def self.detailed(component_id)
     ds = dataset(true).filter(:archival_object__component_id => component_id)
     out = {}
-
     ds.each do |obj|
+    
       res_notes = ASUtils.json_parse(obj[:res_notes] || '{}')
       ao_notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
       if out.empty?
@@ -134,7 +155,6 @@ class Composers
       if out[obj[:ao_id]]
         out[obj[:ao_id]][:date] << [obj[:date_begin], obj[:date_end]]
         out[obj[:ao_id]][:phystech] << extract_note(notes, 'phystech')
-        #out[obj[:ao_id]][:extent] << obj[:extent_phys]
         out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
       else
         component_data = {
@@ -220,7 +240,8 @@ class Composers
         .left_join(:extent, :archival_object_id => :archival_object__id)
         .left_join(:enumeration_value, :id => :extent__extent_type_id)
         .exclude(:archival_object__component_id => nil)
-        .select(Sequel.as(:digital_object__digital_object_id, :do_identifier),
+        .select(Sequel.as(:resource__title, :res_title),
+                Sequel.as(:digital_object__digital_object_id, :do_identifier),
                 Sequel.as(:archival_object__id, :ao_id),
                 Sequel.as(:archival_object__component_id, :component_id),
                 Sequel.as(:archival_object__title, :ao_title),
@@ -273,6 +294,5 @@ class Composers
       ds
     end
   end
-
 end
 
