@@ -85,6 +85,7 @@ class Composers
           :ead_location => obj[:ead_location],
           :do_identifier => obj[:do_identifier],
           :date => [],
+          :extent => "",
           :phystech => [],
           :item_scopecontent => [],
           :accessrestrict => [],
@@ -120,10 +121,10 @@ class Composers
         }
       end
 
-      if obj[:extent].to_s.empty?
+      if obj[:extent_number].to_s.empty?
           out[:extent] = nil
       else  
-        out[:extent_number] = "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
+        out[:extent] = "#{obj[:extent_number]} #{obj[:extent_value]} in #{obj[:extent_container_summary]}"
       end 
       
       out[:file_uris] << obj[:file_uri]
@@ -146,9 +147,7 @@ class Composers
   end
 
   def self.summary(resource_id)
-    # come on ruby what's the nice way to set up that id array?
     ds = dataset.filter(:identifier => ASUtils.to_json(resource_id.split('.', 4).concat(Array.new(4)).take(4)))
-
     out = {}
     ds.each do |obj|
       notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
