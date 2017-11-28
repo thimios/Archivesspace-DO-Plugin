@@ -165,9 +165,9 @@ class Composers
         }
 
         if obj[:extent_number].to_s.empty?
-          component_data[:extent_number] = nil
+          component_data[:extent] = nil
         else  
-          component_data[:extent_number] = "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
+          component_data[:extent] = "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
         end 
 
         if extract_note(notes, 'phystech').to_s.empty? then
