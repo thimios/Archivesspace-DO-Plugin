@@ -92,6 +92,7 @@ class Composers
           :extent => "",
           :phystech => [],
           :item_scopecontent => [],
+          :restrictions_apply => obj[:restrictions_apply]
           :accessrestrict => [],
           :userestrict => [],
           :rights_statements => [],
