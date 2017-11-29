@@ -176,6 +176,11 @@ class Composers
           component_data[:phystech] = [extract_note(notes, 'phystech')]
         end 
 
+        if obj[:ao_restrictions_apply] == 1 then 
+          component_data[:restrictions_apply] = true 
+        else
+          component_data[:restrictions_apply] = false 
+        end
 
         out[obj[:ao_id]] = component_data
       end
@@ -244,6 +249,7 @@ class Composers
                 Sequel.as(:archival_object__id, :ao_id),
                 Sequel.as(:archival_object__component_id, :component_id),
                 Sequel.as(:archival_object__title, :ao_title),
+                Sequel.as(:archival_object__restrictions_apply, :ao_restrictions_apply),
                 Sequel.as(:digital_object__title, :do_title),
                 Sequel.as(:date__begin, :date_begin),
                 Sequel.as(:date__end, :date_end),
