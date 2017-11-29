@@ -22,15 +22,19 @@ class Composers
   #  -  names of linked agents
 
   def self.get_parent(digital_object)
-    ao = ao_dataset(digital_object[:parent_id])
-    notes = ASUtils.json_parse(ao[:ao_notes] || '{}')
-    out = {
-          :title => ao[:ao_title],
-          :bioghist => []
-    }
-    out[:bioghist] << extract_note(notes, 'bioghist')
-    crunch(out[:bioghist])
-    out
+    if digital_object[:parent_id] != nil then
+      ao = ao_dataset(digital_object[:parent_id])
+      notes = ASUtils.json_parse(ao[:ao_notes] || '{}')
+      out = {
+            :title => ao[:ao_title],
+            :bioghist => []
+      }
+      out[:bioghist] << extract_note(notes, 'bioghist')
+      crunch(out[:bioghist])
+      out
+    else
+      nil
+    end
   end
 
   def self.ao_dataset(ao_id)
