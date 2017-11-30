@@ -92,7 +92,7 @@ class Composers
           :extent => "",
           :phystech => [],
           :item_scopecontent => [],
-          :restrictions_apply => obj[:restrictions_apply],
+          :restrictions_apply => false,
           :accessrestrict => [],
           :userestrict => [],
           :rights_statements => [],
@@ -105,6 +105,13 @@ class Composers
       out[:item_scopecontent] << extract_note(ao_notes, 'scopecontent')
       out[:accessrestrict] << extract_note(ao_notes, 'accessrestrict')
       out[:userestrict] << extract_note(ao_notes, 'userestrict')
+
+      if obj[:ao_restrictions_apply] == 1 then 
+        out[:restrictions_apply] = true 
+      else
+        out[:restrictions_apply] = false 
+      end
+
 
       if obj[:rights_active] == 1
         out[:rights_statements] << {
