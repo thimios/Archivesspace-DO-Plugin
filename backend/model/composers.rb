@@ -163,17 +163,13 @@ class Composers
     out = {}
     ds.each do |obj|
       notes = ASUtils.json_parse(obj[:ao_notes] || '{}')
-      if out[obj[:ao_id]]
-        out[obj[:ao_id]][:date] << [obj[:date_begin], obj[:date_end]]
-        out[obj[:ao_id]][:phystech] << extract_note(notes, 'phystech')
-        out[:extent] << "#{obj[:extent_number]} #{obj[:extent_value]} #{obj[:extent_container_summary]}"
-      else
+      if !out[obj[:ao_id]]
         component_data = {
           :component_id => obj[:component_id],
           :title => obj[:ao_title],
           :parent_id => obj[:parent_id],
           :date => [[obj[:date_begin], obj[:date_end]]],
-          :detail_url => detail_url(obj[:component_id]),
+          #:detail_url => detail_url(obj[:component_id]),
         }
 
         if obj[:extent_number].to_s.empty?
