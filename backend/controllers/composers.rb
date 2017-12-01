@@ -65,9 +65,15 @@ class ArchivesSpaceService < Sinatra::Base
        [400, :error]) \
     do
 
-    archival_object = Composers.detailed(params[:component_id] )
+    archival_object = Composers.detailed(params[:component_id])
     parent = Composers.get_parent(archival_object)
-    json_response(:archival_object => archival_object, :parent_object => parent)
+    a = 'https://aeon.library.nyu.edu/aeonauth/aeon.dll?Action=10&Form=31&Value='.to_s
+    b = Composers.get_resource(params[:component_id])[:ead_location].gsub(/html/, "ead").to_s 
+    c = '.xml&view=xml'.to_s
+
+    puts (a + b + c)
+
+    json_response(:archival_object => archival_object, :parent_object => parent, :request_url => a + b + c)
   end
 
 end
