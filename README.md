@@ -24,13 +24,11 @@ example
 
 http://demo.nyu.edu:8089/plugins/composers/archiveit?resource_id=mss.460
 
-{  
-  "title":"Adele Fournet Papers on the Bit Rosie Web Series",
-  "extent":"33 Digital Objects",
-  "display_url":"http://demo.nyu.edu:8089/plugins/composers/summary?resource_id=mss.460&format=html"
-}
-
-
+{ <br/> 
+  "title":"Adele Fournet Papers on the Bit Rosie Web Series",<br/>
+  "extent":"33 Digital Objects",<br/>
+  "display_url":"http://demo.nyu.edu:8089/plugins/composers/summary?resource_id=mss.460&format=html"<br/>
+}<br/>
 
 **Summary**
 
