@@ -38,12 +38,14 @@ The endpoint will generate a json response that can be consumed by Archive-It by
 
 The Archivesspace DO plugin adds three GET endpoints to the 
 
-GET /plugins/composers/archiveit
-provides a json response with basic data about a collection for integration with Archive-It 
+GET /plugins/composers/archiveit<br/>
+Provides a json response with basic data about a collection for integration with Archive-It. More information on the integration can be found here: https://github.com/NYULibraries/Archivesspace-DO-Plugin/wiki/Archive-It-Integration<br/>
 
-GET /plugins/composers/summary
+GET /plugins/composers/summary<br/>
+Provides a json response with data about a resources and a summary of digital objects that are described as part of the resource<br/>
 
-GET /plugins/composers/detailed
+GET /plugins/composers/detailed<br/>
+Provides a json response with information about a digital object and parent archival object<br/
 
 **Demo Application**
 
