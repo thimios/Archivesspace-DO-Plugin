@@ -15,3 +15,33 @@ $ git clone https://github.com/NYULibraries/Archivesspace-DO-Plugin
 Enable the plugin by editing the file in config/config.rb: AppConfig[:plugins] = ['some_exisiting plugin', 'composers']
 
 Add a proxy for your backend url in config/config.rb: AppConfig[:backend_proxy_url] = "http://example.com:8089"
+
+**Archiveit Integration**
+
+The API includes an endpoint, /plugins/composers/archiveit, that generates a json-formatted data that can be consumed by Archive-It. 
+
+example
+
+http://demo.nyu.edu:8089/plugins/composers/archiveit?resource_id=mss.460
+
+{  
+  "title":"Adele Fournet Papers on the Bit Rosie Web Series",
+  "extent":"33 Digital Objects",
+  "display_url":"http://demo.nyu.edu:8089/plugins/composers/summary?resource_id=mss.460&format=html"
+}
+
+
+
+**Summary**
+
+The Archivesspace DO plugin adds three GET endpoints to the 
+
+GET /plugins/composers/archiveit
+
+GET /plugins/composers/summary
+
+GET /plugins/composers/detailed
+
+**Demo Application**
+
+A demo application that consumes the data from the API is available at: [https://github.com/NYULibraries/Composers-API-Demo](https://github.com/NYULibraries/Composers-API-Demo)
