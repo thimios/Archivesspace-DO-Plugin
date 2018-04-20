@@ -18,11 +18,15 @@ Add a proxy for your backend url in config/config.rb: AppConfig[:backend_proxy_u
 
 **Archiveit Integration**
 
-The API includes an endpoint, /plugins/composers/archiveit, that generates a json-formatted data that can be consumed by Archive-It. 
+The API includes an endpoint, /plugins/composers/archiveit, that generates a json response that can be consumed by Archive-It. 
 
-example
+**example**
+
+A URL can be created that passes the resource identifier for a resource described in archivesspace as a parameter to the /plugins/composers/archiveit endpoint:
 
 http://demo.nyu.edu:8089/plugins/composers/archiveit?resource_id=mss.460
+
+The endpoint will generate a json response that can be consumed by Archive-It by entering the the url in the 'Related Archival Materials' field in the metadata for a seed url archived in Archive-It. 
 
 { <br/> 
   "title":"Adele Fournet Papers on the Bit Rosie Web Series",<br/>
@@ -30,11 +34,12 @@ http://demo.nyu.edu:8089/plugins/composers/archiveit?resource_id=mss.460
   "display_url":"http://demo.nyu.edu:8089/plugins/composers/summary?resource_id=mss.460&format=html"<br/>
 }<br/>
 
-**Summary**
+**Endpoint Summary**
 
 The Archivesspace DO plugin adds three GET endpoints to the 
 
 GET /plugins/composers/archiveit
+provides a json response with basic data about a collection for integration with Archive-It 
 
 GET /plugins/composers/summary
 
