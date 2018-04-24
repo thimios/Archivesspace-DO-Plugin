@@ -18,7 +18,7 @@ Add a proxy for your backend url in config/config.rb: AppConfig[:backend_proxy_u
 
 **Archiveit Integration**
 
-The API includes an endpoint, /plugins/composers/archiveit, that generates a json response that can be consumed by Archive-It. 
+The API includes an endpoint, /plugins/composers/archiveit, that generates a json response that can be consumed by Archive-It. More information on this integration can be found at https://github.com/NYULibraries/Archivesspace-DO-Plugin/wiki/Archive-It-Integration 
 
 **example**
 
