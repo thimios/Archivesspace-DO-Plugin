@@ -8,13 +8,13 @@ This plugin was developed against ArchivesSpace v1.5.1 by [Hudson Molonglo](http
 
 **How to Install**
 
-$ cd /path/to/archivesspace/plugins
+1. Download latest release at: https://github.com/NYULibraries/Archivesspace-DO-Plugin/releases 
 
-$ git clone https://github.com/NYULibraries/Archivesspace-DO-Plugin
+2. Uncompress and install the plugin in your archivesspace plugins directory
 
-Enable the plugin by editing the file in config/config.rb: AppConfig[:plugins] = ['some_exisiting plugin', 'composers']
+3. Enable the plugin by editing the file in config/config.rb: AppConfig[:plugins] = ['some_exisiting plugin', 'composers']
 
-Add a proxy for your backend url in config/config.rb: AppConfig[:backend_proxy_url] = "http://example.com:8089"
+4. Add a proxy for your backend url in config/config.rb: AppConfig[:backend_proxy_url] = "http://example.com:8089"
 
 **Archiveit Integration**
 
