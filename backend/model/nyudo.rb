@@ -1,8 +1,5 @@
 class Composers
 
-  BASE_DETAIL_URI = '/plugins/composers/detailed?component_id='
-
-
   #  resource:
   #  -  ead_location
   #  -  identifier
@@ -169,7 +166,6 @@ class Composers
           :title => obj[:ao_title],
           :parent_id => obj[:parent_id],
           :date => [[obj[:date_begin], obj[:date_end]]],
-          #:detail_url => detail_url(obj[:component_id]),
         }
 
         if obj[:extent_number].to_s.empty?
@@ -195,8 +191,6 @@ class Composers
     end
 
     out.values.map do |v|
-      #crunch(v[:phystech])
-      #crunch(v[:extent])
       v[:date] = find_date_range(v[:date])
       v
     end
@@ -223,12 +217,6 @@ class Composers
     a.delete_if { |v| v.empty? }
   end
 
-
-  def self.detail_url(id)
-    AppConfig[:backend_proxy_url] + BASE_DETAIL_URI + (id || '')
-  end
-
-
   def self.extract_note(notes, type)
     return '' unless notes['type'] == type
     notes['subnotes'].select { |sn| sn['publish'] }.collect { |sn| sn['content'] }.join(' ')
@@ -239,9 +227,9 @@ class Composers
     DB.open do |db|
       ds = db[:digital_object]
 
-      if AppConfig[:composers_repositories] != :all
-        ds = ds.filter(:repo_id => AppConfig[:composers_repositories])
-      end
+      #if AppConfig[:composers_repositories] != :all
+      #  ds = ds.filter(:repo_id => AppConfig[:composers_repositories])
+      #end
 
       ds = ds.join(:instance_do_link_rlshp, :digital_object_id => :id)
         .join(:instance, :id => :instance_id)
