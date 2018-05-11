@@ -12,40 +12,40 @@ This plugin was developed against ArchivesSpace v1.5.1 by [Hudson Molonglo](http
 
 2. Uncompress and install the plugin in your archivesspace plugins directory
 
-3. Enable the plugin by editing the file in config/config.rb: AppConfig[:plugins] = ['some_exisiting plugin', 'composers']
+3. Enable the plugin by editing the file in config/config.rb: AppConfig[:plugins] = ['some_exisiting plugin', 'nyudo']
 
 4. Add a proxy for your backend url in config/config.rb: AppConfig[:backend_proxy_url] = "http://example.com:8089"
 
 **Archiveit Integration**
 
-The API includes an endpoint, /plugins/composers/archiveit, that generates a json response that can be consumed by Archive-It. More information on this integration can be found at https://github.com/NYULibraries/Archivesspace-DO-Plugin/wiki/Archive-It-Integration 
+The API includes an endpoint, /plugins/nyudo/repositories/:repository_id/archiveit/:resource_id, that generates a json response that can be consumed by Archive-It. More information on this integration can be found at https://github.com/NYULibraries/Archivesspace-DO-Plugin/wiki/Archive-It-Integration 
 
 **example**
 
-A URL can be created that passes the resource identifier for a resource described in archivesspace as a parameter to the /plugins/composers/archiveit endpoint:
+A URL can be created that passes the repository and resource identifiers for a resource described in archivesspace as a parameter to the archiveit endpoint:
 
-http://demo.nyu.edu:8089/plugins/composers/archiveit?resource_id=mss.460
+http://demo.nyu.edu:8089/plugins/nyudo/repositories/2/archiveit/mss.460
 
 The endpoint will generate a json response that can be consumed by Archive-It by entering the the url in the 'Related Archival Materials' field in the metadata for a seed url archived in Archive-It. 
 
 { <br/> 
   "title":"Adele Fournet Papers on the Bit Rosie Web Series",<br/>
   "extent":"33 Digital Objects",<br/>
-  "display_url":"http://demo.nyu.edu:8089/plugins/composers/summary?resource_id=mss.460&format=html"<br/>
+  "display_url":"http://demo.nyu.edu:8089/plugins/nyudo/repositories/2/summary/mss.460"<br/>
 }<br/>
 
 **Endpoint Summary**
 
 The Archivesspace DO plugin adds three GET endpoints to the 
 
-GET /plugins/composers/archiveit<br/>
+GET /plugins/nyudo/repositories/:repository_id/archiveit/:resource_id<br/>
 Provides a json response with basic data about a collection for integration with Archive-It. More information on the integration can be found here: https://github.com/NYULibraries/Archivesspace-DO-Plugin/wiki/Archive-It-Integration<br/>
 
-GET /plugins/composers/summary<br/>
+GET /plugins/nyudo/repositories/:repository_id/summary/:resource_id<br/>
 Provides a json response with data about a resources and a summary of digital objects that are described as part of the resource<br/>
 
-GET /plugins/composers/detailed<br/>
-Provides a json response with information about a digital object and parent archival object<br/
+GET /plugins/nyudo/repositories/:repository_id/detailed/:resource_id<br/>
+Provides a json response with information about a digital object and parent archival object<br/>
 
 **Demo Application**
 
