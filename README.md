@@ -16,7 +16,7 @@ This plugin was developed against ArchivesSpace v1.5.1 by [Hudson Molonglo](http
 
 4. Add a proxy for your backend url in config/config.rb: AppConfig[:backend_proxy_url] = "http://example.com:8089"
 
-Your archivesspace should now have 3 extra endpoints: /plugins/nyudo/archiveit, /plugins/nyudo/sumary, and /plugins/nyudo/detailed
+Your archivesspace should now have 3 extra endpoints: /plugins/nyudo/repositories/:repo_id/archiveit/:resource_id, /plugins/nyudo/repositories/:repo_id/sumary/:resource_id, and /plugins/nyudo/repositories/:repo_id/detailed/:component_id
 
 **Authentication**
 
