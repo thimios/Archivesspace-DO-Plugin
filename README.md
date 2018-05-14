@@ -10,11 +10,17 @@ This plugin was developed against ArchivesSpace v1.5.1 by [Hudson Molonglo](http
 
 1. Download latest release at: https://github.com/NYULibraries/Archivesspace-DO-Plugin/releases 
 
-2. Uncompress and install the plugin in your archivesspace plugins directory
+2. Uncompress the directory and copy to your archivesspace plugins directory, with the name 'nyudo'
 
 3. Enable the plugin by editing the file in config/config.rb: AppConfig[:plugins] = ['some_exisiting plugin', 'nyudo']
 
 4. Add a proxy for your backend url in config/config.rb: AppConfig[:backend_proxy_url] = "http://example.com:8089"
+
+Your archivesspace should now have 3 extra endpoints: /plugins/nyudo/archiveit, /plugins/nyudo/sumary, and /plugins/nyudo/detailed
+
+**Authentication**
+
+The endpoints are configured to require an authenticated session from Archivesspace for a user account with read-repository permissions. This can be configured to a different permission setting, or no perissions at all, by modifying the nyudo.rb from the Controllers directory, and changing the argument to the permissions methods: ".permissions([:view_repository])"
 
 **Archiveit Integration**
 
