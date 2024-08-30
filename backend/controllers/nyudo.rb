@@ -1,4 +1,4 @@
-require_relative File.join(ASUtils.find_base_directory, 'plugins/nyudo', 'mixed_content_parser')
+require File.join(ASUtils.find_base_directory, 'plugins/nyudo', 'mixed_content_parser')
 
 
 class ArchivesSpaceService < Sinatra::Base
@@ -17,9 +17,9 @@ class ArchivesSpaceService < Sinatra::Base
     detail = Composers.detailed(summary[0][:component_id])
 
     resp = {
-      :title => detail[:resource_title], 
-      :extent => summary.size.to_s + " Digital Objects", 
-      :display_url =>  File.join(AppConfig[:backend_proxy_url], "plugins/nyudo/repositories/#{params[:repo_id]}/#{params[:resource_id]}") 
+      :title => detail[:resource_title],
+      :extent => summary.size.to_s + " Digital Objects",
+      :display_url =>  File.join(AppConfig[:backend_proxy_url], "plugins/nyudo/repositories/#{params[:repo_id]}/#{params[:resource_id]}")
     }
 
     if resp.empty?
@@ -38,17 +38,17 @@ class ArchivesSpaceService < Sinatra::Base
     .returns([200, "[(:digital_object)]"],
       [400, :error]) \
     do
-    
+
     digital_objects = Composers.summary(params[:resource_id])
-    
+
     if digital_objects.empty?
       json_response({:error => "Resource not found for identifier: #{params[:resource_id]}"}, 400)
     else
       resource = Composers.get_resource(digital_objects[0][:component_id])
       json_response(
-        :version => "0.0.1", 
-        :resource_identifier => resource[:resource_identifier], 
-        :resource_title => resource[:resource_title], 
+        :version => "0.0.1",
+        :resource_identifier => resource[:resource_identifier],
+        :resource_title => resource[:resource_title],
         :ead_location => resource[:ead_location],
         :scopecontent => resource[:resource_scopecontent][0],
         :bioghist => resource[:resource_bioghist][0],
@@ -71,7 +71,7 @@ class ArchivesSpaceService < Sinatra::Base
     ead_loc = Composers.get_resource(params[:component_id])[:ead_location].gsub(/html/, "ead").to_s + '.xml&view=xml'.to_s
     aeon_url = aeon_form + ead_loc
     json_response(:archival_object => archival_object, :parent_object => parent, :request_url => aeon_url)
-  
+
   end
 
 end
